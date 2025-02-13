@@ -16,6 +16,10 @@ class View
     #[ORM\Column(length: 255)]
     private ?string $View = null;
 
+    #[ORM\ManyToOne(inversedBy: 'views')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Notes $notes = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class View
     public function setView(string $View): static
     {
         $this->View = $View;
+
+        return $this;
+    }
+
+    public function getNotes(): ?Notes
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?Notes $notes): static
+    {
+        $this->notes = $notes;
 
         return $this;
     }

@@ -24,9 +24,23 @@ class User
     #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'user')]
     private Collection $notes;
 
+    /**
+     * @var Collection<int, Likes>
+     */
+    #[ORM\OneToMany(targetEntity: Likes::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $likes;
+
+    /**
+     * @var Collection<int, Network>
+     */
+    #[ORM\ManyToMany(targetEntity: Network::class, mappedBy: 'users')]
+    private Collection $networks;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+        $this->networks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,6 +85,63 @@ class User
             if ($note->getUser() === $this) {
                 $note->setUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Likes>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Likes $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Likes $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getUser() === $this) {
+                $like->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Network>
+     */
+    public function getNetworks(): Collection
+    {
+        return $this->networks;
+    }
+
+    public function addNetwork(Network $network): static
+    {
+        if (!$this->networks->contains($network)) {
+            $this->networks->add($network);
+            $network->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNetwork(Network $network): static
+    {
+        if ($this->networks->removeElement($network)) {
+            $network->removeUser($this);
         }
 
         return $this;

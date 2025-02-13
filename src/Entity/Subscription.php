@@ -16,6 +16,10 @@ class Subscription
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $Subscription = null;
 
+    #[ORM\ManyToOne(inversedBy: 'subscription')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Offer $offer = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class Subscription
     public function setSubscription(?string $Subscription): static
     {
         $this->Subscription = $Subscription;
+
+        return $this;
+    }
+
+    public function getOffer(): ?Offer
+    {
+        return $this->offer;
+    }
+
+    public function setOffer(?Offer $offer): static
+    {
+        $this->offer = $offer;
 
         return $this;
     }
