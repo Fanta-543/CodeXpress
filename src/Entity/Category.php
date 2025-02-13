@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\CategoryRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
@@ -16,63 +14,46 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Category = null;
+    private ?string $name = null;
 
-    /**
-     * @var Collection<int, Notes>
-     */
-    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'category', orphanRemoval: true)]
-    private Collection $notes;
+    #[ORM\Column(length: 255)]
+    private ?string $icon = null;
 
-    public function __construct()
-    {
-        $this->notes = new ArrayCollection();
-    }
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Note::class)]
+    private $notes;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCategory(): ?string
+    public function getName(): ?string
     {
-        return $this->Category;
+        return $this->name;
     }
 
-    public function setCategory(string $Category): static
+    public function setName(string $name): self
     {
-        $this->Category = $Category;
+        $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Notes>
-     */
-    public function getNotes(): Collection
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(string $icon): self
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    public function getNotes()
     {
         return $this->notes;
     }
-
-    public function addNote(Notes $note): static
-    {
-        if (!$this->notes->contains($note)) {
-            $this->notes->add($note);
-            $note->setCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNote(Notes $note): static
-    {
-        if ($this->notes->removeElement($note)) {
-            // set the owning side to null (unless already changed)
-            if ($note->getCategory() === $this) {
-                $note->setCategory(null);
-            }
-        }
-
-        return $this;
-    }
 }
+

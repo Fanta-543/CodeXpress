@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Repository\ViewRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ViewRepository::class)]
@@ -13,38 +12,26 @@ class View
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $View = null;
-
-    #[ORM\ManyToOne(inversedBy: 'views')]
+    /**
+     * @var Note
+     */
+    #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: 'views')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Notes $notes = null;
+    private ?Note $note = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getView(): ?string
+    public function getNote(): ?Note
     {
-        return $this->View;
+        return $this->note;
     }
 
-    public function setView(string $View): static
+    public function setNote(?Note $note): self
     {
-        $this->View = $View;
-
-        return $this;
-    }
-
-    public function getNotes(): ?Notes
-    {
-        return $this->notes;
-    }
-
-    public function setNotes(?Notes $notes): static
-    {
-        $this->notes = $notes;
+        $this->note = $note;
 
         return $this;
     }

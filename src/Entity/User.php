@@ -6,34 +6,37 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $User = null;
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $username = null;
 
-    /**
-     * @var Collection<int, Notes>
-     */
-    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'user')]
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(type: "string")]
+    private ?string $password = null;
+
+    #[ORM\Column(type: "json")]
+    private array $roles = [];
+
+    // Correction ici : remplacer Notes::class par Note::class
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Note::class)] 
     private Collection $notes;
 
-    /**
-     * @var Collection<int, Likes>
-     */
-    #[ORM\OneToMany(targetEntity: Likes::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Likes::class, orphanRemoval: true)]
     private Collection $likes;
 
-    /**
-     * @var Collection<int, Network>
-     */
-    #[ORM\ManyToMany(targetEntity: Network::class, mappedBy: 'users')]
+    #[ORM\ManyToMany(targetEntity: Network::class, mappedBy: "users")]
     private Collection $networks;
 
     public function __construct()
@@ -48,102 +51,129 @@ class User
         return $this->id;
     }
 
-    public function getUser(): ?string
+    public function getUsername(): ?string
     {
-        return $this->User;
+        return $this->username;
     }
 
-    public function setUser(string $User): static
+    public function setUsername(string $username): self
     {
-        $this->User = $User;
-
+        $this->username = $username;
         return $this;
     }
 
-    /**
-     * @return Collection<int, Notes>
-     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Suppression des données sensibles (ex: mot de passe en clair)
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
     public function getNotes(): Collection
     {
         return $this->notes;
     }
 
-    public function addNote(Notes $note): static
+    public function addNote(Note $note): self
     {
         if (!$this->notes->contains($note)) {
             $this->notes->add($note);
             $note->setUser($this);
         }
-
         return $this;
     }
 
-    public function removeNote(Notes $note): static
+    public function removeNote(Note $note): self
     {
         if ($this->notes->removeElement($note)) {
-            // set the owning side to null (unless already changed)
             if ($note->getUser() === $this) {
                 $note->setUser(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Likes>
-     */
     public function getLikes(): Collection
     {
         return $this->likes;
     }
 
-    public function addLike(Likes $like): static
+    public function addLike(Likes $like): self
     {
         if (!$this->likes->contains($like)) {
             $this->likes->add($like);
             $like->setUser($this);
         }
-
         return $this;
     }
 
-    public function removeLike(Likes $like): static
+    public function removeLike(Likes $like): self
     {
         if ($this->likes->removeElement($like)) {
-            // set the owning side to null (unless already changed)
             if ($like->getUser() === $this) {
                 $like->setUser(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Network>
-     */
     public function getNetworks(): Collection
     {
         return $this->networks;
     }
 
-    public function addNetwork(Network $network): static
+    public function addNetwork(Network $network): self
     {
         if (!$this->networks->contains($network)) {
             $this->networks->add($network);
             $network->addUser($this);
         }
-
         return $this;
     }
 
-    public function removeNetwork(Network $network): static
+    public function removeNetwork(Network $network): self
     {
         if ($this->networks->removeElement($network)) {
             $network->removeUser($this);
         }
-
         return $this;
     }
 }
