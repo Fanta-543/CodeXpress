@@ -3,33 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bienvenue{% endblock %}</title>
-    <!-- Ajoutez ici d'autres fichiers CSS ou bibliothèques externes -->
+    <title>{% block title %}Symfony{% endblock %}</title>
 </head>
 <body>
-    <!-- Header -->
     <header>
-        <nav>
-            <ul>
-                <li><a href="{{ path('app_home') }}">Accueil</a></li>
-                <li><a href="{{ path('app_login') }}">Connexion</a></li>
-                <li><a href="{{ path('app_register') }}">S'inscrire</a></li>
-                <!-- Ajouter d'autres liens ici -->
-            </ul>
-        </nav>
+        <h1>Mon application Symfony</h1>
     </header>
 
-    <!-- Main content -->
-    <main>
-        {% block body %}
-            <h1>Page principale</h1>
-            <p>Bienvenue sur le site. Vous êtes sur la page d'accueil.</p>
-        {% endblock %}
-    </main>
+    {% block body %}{% endblock %}
 
-    <!-- Footer -->
     <footer>
-        <p>&copy; {{ "now"|date("Y") }} Mon site Web</p>
+        <p>&copy; 2025 Symfony Project</p>
     </footer>
 </body>
 </html>

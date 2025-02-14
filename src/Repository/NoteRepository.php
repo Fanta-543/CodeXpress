@@ -2,40 +2,28 @@
 
 namespace App\Repository;
 
-use App\Entity\Note;  // Changer de "Notes" à "Note" pour correspondre à l'entité
+use App\Entity\Note;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Note>  // Changement de "Notes" à "Note"
+ * @extends ServiceEntityRepository<Note>
  */
 class NoteRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Note::class);  // Changer "Notes" en "Note"
+        parent::__construct($registry, Note::class);
     }
 
-    // Exemple d'une méthode personnalisée pour rechercher par un champ spécifique
-    // public function findByExampleField($value): array
-    // {
-    //     return $this->createQueryBuilder('n')
-    //         ->andWhere('n.exampleField = :val')
-    //         ->setParameter('val', $value)
-    //         ->orderBy('n.id', 'ASC')
-    //         ->setMaxResults(10)
-    //         ->getQuery()
-    //         ->getResult()
-    //     ;
-    // }
-
-    // public function findOneBySomeField($value): ?Note
-    // {
-    //     return $this->createQueryBuilder('n')
-    //         ->andWhere('n.exampleField = :val')
-    //         ->setParameter('val', $value)
-    //         ->getQuery()
-    //         ->getOneOrNullResult()
-    //     ;
-    // }
+    // Exemple d'une méthode personnalisée
+    public function findByIsPublic(bool $isPublic): array
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.isPublic = :val')
+            ->setParameter('val', $isPublic)
+            ->getQuery()
+            ->getResult();
+    }
 }
+

@@ -55,5 +55,9 @@ class Category
     {
         return $this->notes;
     }
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
 

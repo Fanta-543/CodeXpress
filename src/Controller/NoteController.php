@@ -1,44 +1,53 @@
 <?php
 
-// src/Controller/NoteController.php
 namespace App\Controller;
 
-use App\Repository\NoteRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\Note;
+use App\Form\NoteType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class NoteController extends AbstractController
 {
-    // Route pour afficher toutes les notes
-    #[Route('/notes', name: 'app_note_all', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')] // Protection par rôle
-    public function allNotes(NoteRepository $noteRepository): Response
+    #[Route('/note/new', name: 'app_note_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
-        $notes = $noteRepository->findAll(); // Récupérer toutes les notes
-        return $this->render('note/all_notes.html.twig', [
-            'notes' => $notes,
+        // Création d'un nouvel objet Note
+        $note = new Note();
+
+        // Création du formulaire
+        $form = $this->createForm(NoteType::class, $note);
+        $form->handleRequest($request);
+
+        // Si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Génération du slug basé sur le titre
+            $note->setSlug($slugger->slug($note->getTitle())->lower());
+
+            // Sauvegarde de la note dans la base de données
+            $em->persist($note);
+            $em->flush();
+
+            // Message flash et redirection
+            $this->addFlash('success', 'Your note has been created!');
+            return $this->redirectToRoute('app_note_show', ['slug' => $note->getSlug()]);
+        }
+
+        // Affichage du formulaire
+        return $this->render('note/new.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
-    // Route pour afficher une note par son slug
-    #[Route('/notes/n/{slug}', name: 'app_note_show', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')]
-    public function showNote(string $slug, NoteRepository $noteRepository): Response
+    #[Route('/note/{slug}', name: 'app_note_show')]
+    public function show(Note $note): Response
     {
-        $note = $noteRepository->findOneBy(['slug' => $slug]);
         return $this->render('note/show.html.twig', [
             'note' => $note,
         ]);
-    }
-
-    // Route pour créer une nouvelle note
-    #[Route('/notes/new', name: 'app_note_new', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_USER')]
-    public function createNote(): Response
-    {
-        // Logique de création de note
-        return $this->render('note/new.html.twig');
     }
 }

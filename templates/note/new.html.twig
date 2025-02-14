@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a New Note{% endblock %}
+
+{% block body %}
+    <h1>Create a New Note</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.content) }}
+        {{ form_row(form.is_public) }}
+        {{ form_row(form.category) }}
+        {{ form_row(form.save) }}
+    {{ form_end(form) }}
+
+    <style>
+        .btn {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
